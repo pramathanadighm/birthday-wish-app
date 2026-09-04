@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday Wish Generator | Personalized Celebrations</title>
+  <meta name="description" content="Generate personalized, glassmorphic, interactive birthday wishes with vibrant themes, floating stars, confetti animations, and instant sharing.">
+  
+  <!-- Modern Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <script type="module" crossorigin src="/assets/index-DOSycTw9.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CinAizid.css">
+</head>
+<body>
+  <!-- Canvas for dynamic background stars and celebratory confetti -->
+  <canvas id="fx-canvas" aria-hidden="true"></canvas>
+
+  <!-- SCREEN 1: Welcome & Setup with Gatekeeper Logic -->
+  <main id="screen-welcome" class="screen-container">
+    <div id="card-welcome" class="welcome-card glass-card">
+      
+      <!-- Welcome Header -->
+      <div class="welcome-header">
+        <div class="popper-icon-wrap" aria-hidden="true">
+          <span class="popper-emoji">🎉</span>
+        </div>
+        <h1 class="welcome-title">Welcome</h1>
+        <p class="welcome-subtitle">Sign in to surprise</p>
+      </div>
+
+      <!-- Theme Selector -->
+      <div class="theme-section">
+        <label class="section-label">SELECT CELEBRATION THEME</label>
+        <div id="theme-swatches" class="theme-swatches" role="radiogroup" aria-label="Theme Color Swatches">
+          <!-- 8 Swatches generated dynamically by theme.js -->
+        </div>
+      </div>
+
+      <!-- User Information Form -->
+      <form id="form-welcome" class="welcome-form" novalidate>
+        
+        <div class="input-group">
+          <label for="input-name" class="input-label">FULL NAME</label>
+          <div class="input-wrapper">
+            <span class="input-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
+            <input 
+              type="text" 
+              id="input-name" 
+              class="form-input" 
+              placeholder="e.g. Alex Rivera" 
+              required
+              autocomplete="name"
+              maxlength="50"
+            >
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="input-dob" class="input-label">DATE OF BIRTH</label>
+          <div class="input-wrapper date-picker-wrapper">
+            <span class="input-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </span>
+            <input 
+              type="text" 
+              id="input-dob" 
+              class="form-input date-text-input" 
+              placeholder="DD-MM-YYYY (e.g. 05-09-2000)" 
+              maxlength="10"
+              inputmode="numeric"
+              required
+              aria-describedby="dob-hint"
+            >
+            <button 
+              type="button" 
+              id="btn-open-calendar" 
+              class="calendar-trigger-btn" 
+              title="Open scrollable date picker"
+              aria-label="Open scrollable date picker"
+            >
+              📅
+            </button>
+          </div>
+          <span id="dob-hint" class="input-hint">Type DD-MM-YYYY using keyboard or click 📅 for scrollable picker</span>
+        </div>
+
+        <div id="form-error" class="form-error-msg" role="alert"></div>
+
+        <!-- CTA & Gatekeeper Container -->
+        <div id="cta-container" class="cta-container">
+          
+          <!-- Normal CTA Button -->
+          <button type="submit" id="btn-submit-welcome" class="cta-button">
+            <span class="cta-text">✨ Sign In to Surprise</span>
+          </button>
+
+          <!-- Gatekeeper Morph Block: Replaces button if NOT birthday today -->
+          <div id="gatekeeper-block" class="gatekeeper-block" style="display: none;">
+            <div class="gatekeeper-header">
+              <span class="gatekeeper-badge">⏳ Not quite yet! Come back in:</span>
+            </div>
+            
+            <!-- Live Gatekeeper Countdown Timer (DD : HH : MM : SS) -->
+            <div class="gatekeeper-timer-wrap">
+              <div class="gk-unit">
+                <span id="gk-days" class="gk-num">00</span>
+                <span class="gk-tag">DAYS</span>
+              </div>
+              <span class="gk-colon">:</span>
+              <div class="gk-unit">
+                <span id="gk-hours" class="gk-num">00</span>
+                <span class="gk-tag">HOURS</span>
+              </div>
+              <span class="gk-colon">:</span>
+              <div class="gk-unit">
+                <span id="gk-mins" class="gk-num">00</span>
+                <span class="gk-tag">MINS</span>
+              </div>
+              <span class="gk-colon">:</span>
+              <div class="gk-unit">
+                <span id="gk-secs" class="gk-num">00</span>
+                <span class="gk-tag">SECS</span>
+              </div>
+            </div>
+
+            <div class="gatekeeper-footer">
+              <button type="button" id="btn-reset-gatekeeper" class="reset-gatekeeper-btn">
+                ← Change Date of Birth
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- SCREEN 2: Birthday Greeting Screen (Only accessible on actual birthday) -->
+  <main id="screen-surprise" class="screen-container surprise-container" style="display: none;">
+    <div class="surprise-content">
+      
+      <!-- Festive Header: Birthday Cake & Animated Gift Boxes -->
+      <section class="surprise-hero" aria-label="Celebration Header">
+        
+        <div class="illustration-row">
+          <!-- Left Animated Gift Box -->
+          <div class="gift-box-wrap gift-left" aria-hidden="true">
+            <svg class="gift-svg" viewBox="0 0 100 100" width="70" height="70">
+              <defs>
+                <linearGradient id="giftGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="var(--theme-accent-light)"/>
+                  <stop offset="100%" stop-color="var(--theme-accent-dark)"/>
+                </linearGradient>
+                <linearGradient id="ribbonGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffffff"/>
+                  <stop offset="100%" stop-color="#fef08a"/>
+                </linearGradient>
+              </defs>
+              <rect x="20" y="42" width="60" height="46" rx="6" fill="url(#giftGrad1)"/>
+              <rect x="16" y="34" width="68" height="12" rx="4" fill="var(--theme-accent)"/>
+              <rect x="44" y="42" width="12" height="46" fill="url(#ribbonGrad1)"/>
+              <rect x="44" y="34" width="12" height="12" fill="url(#ribbonGrad1)"/>
+              <path d="M50 34 C40 20 26 24 38 34 Z" fill="url(#ribbonGrad1)"/>
+              <path d="M50 34 C60 20 74 24 62 34 Z" fill="url(#ribbonGrad1)"/>
+              <circle cx="50" cy="34" r="4" fill="#ffffff"/>
+            </svg>
+          </div>
+
+          <!-- Center Birthday Cake Illustration -->
+          <div id="cake-illustration" class="cake-illustration-wrap" role="button" tabindex="0" title="Click the cake for a birthday burst!" aria-label="Birthday Cake - Click to celebrate">
+            <svg class="cake-svg" viewBox="0 0 160 160" width="140" height="140">
+              <defs>
+                <linearGradient id="cakePlateGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#334155"/>
+                  <stop offset="50%" stop-color="#64748b"/>
+                  <stop offset="100%" stop-color="#334155"/>
+                </linearGradient>
+                <linearGradient id="cakeBottomGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fb7185"/>
+                  <stop offset="100%" stop-color="#e11d48"/>
+                </linearGradient>
+                <linearGradient id="cakeTopGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fbcfe8"/>
+                  <stop offset="100%" stop-color="#f472b6"/>
+                </linearGradient>
+                <radialGradient id="flameGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#fef08a" stop-opacity="1"/>
+                  <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.8"/>
+                  <stop offset="100%" stop-color="#ea580c" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+
+              <!-- Cake Plate -->
+              <ellipse cx="80" cy="142" rx="65" ry="10" fill="url(#cakePlateGrad)"/>
+              
+              <!-- Bottom Tier -->
+              <rect x="35" y="98" width="90" height="40" rx="8" fill="url(#cakeBottomGrad)"/>
+              <path d="M35 98 Q42 110 50 98 Q58 110 65 98 Q73 110 80 98 Q88 110 95 98 Q103 110 110 98 Q118 110 125 98 L125 98 L35 98 Z" fill="#ffffff"/>
+
+              <!-- Top Tier -->
+              <rect x="48" y="66" width="64" height="34" rx="6" fill="url(#cakeTopGrad)"/>
+              <path d="M48 66 Q56 76 64 66 Q72 76 80 66 Q88 76 96 66 Q104 76 112 66 L112 66 L48 66 Z" fill="#ffffff"/>
+
+              <!-- Candles -->
+              <rect x="58" y="44" width="6" height="22" rx="2" fill="var(--theme-accent)"/>
+              <ellipse class="candle-flame flame-1" cx="61" cy="38" rx="4" ry="7" fill="url(#flameGlow)"/>
+
+              <rect x="77" y="40" width="6" height="26" rx="2" fill="var(--theme-accent-light)"/>
+              <ellipse class="candle-flame flame-2" cx="80" cy="34" rx="4.5" ry="8" fill="url(#flameGlow)"/>
+
+              <rect x="96" y="44" width="6" height="22" rx="2" fill="var(--theme-accent)"/>
+              <ellipse class="candle-flame flame-3" cx="99" cy="38" rx="4" ry="7" fill="url(#flameGlow)"/>
+            </svg>
+          </div>
+
+          <!-- Right Animated Gift Box -->
+          <div class="gift-box-wrap gift-right" aria-hidden="true">
+            <svg class="gift-svg" viewBox="0 0 100 100" width="70" height="70">
+              <rect x="20" y="42" width="60" height="46" rx="6" fill="url(#giftGrad1)"/>
+              <rect x="16" y="34" width="68" height="12" rx="4" fill="var(--theme-accent)"/>
+              <rect x="44" y="42" width="12" height="46" fill="url(#ribbonGrad1)"/>
+              <rect x="44" y="34" width="12" height="12" fill="url(#ribbonGrad1)"/>
+              <path d="M50 34 C40 20 26 24 38 34 Z" fill="url(#ribbonGrad1)"/>
+              <path d="M50 34 C60 20 74 24 62 34 Z" fill="url(#ribbonGrad1)"/>
+              <circle cx="50" cy="34" r="4" fill="#ffffff"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Greeting Header in Selected Theme Accent -->
+        <h1 class="surprise-title">
+          Happy Birthday, <span id="display-name" class="theme-accent-title">Celebrant</span>!
+        </h1>
+
+        <!-- Glowing Pill Badge -->
+        <div class="badge-wrap">
+          <div id="display-age-badge" class="age-badge-pill">
+            -- years
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 2x2 Glassmorphism Cards Section (Strictly Equal Size, No Empty Space) -->
+      <section class="cards-grid" aria-label="Birthday Details and Messages">
+        
+        <!-- CARD 1 (Top Left): A Heartfelt Celebration (Quote completely moved to bottom-left) -->
+        <article class="glass-card celebration-card">
+          <div class="card-glow-indicator"></div>
+          <div class="card-header-row">
+            <h2 class="card-title">
+              <span class="card-title-icon">🌟</span>
+              A Heartfelt Celebration
+            </h2>
+          </div>
+          <div id="display-main-message" class="main-message-body">
+            <!-- Dynamically generated personal message -->
+          </div>
+          <div class="card-footer-banner">
+            <span class="banner-pill">✨ 365 Days of Happiness, Health & Triumph</span>
+          </div>
+        </article>
+
+        <!-- CARD 2 (Top Right): Birthday Milestone Stats Card -->
+        <article class="glass-card stats-card">
+          <div class="card-glow-indicator"></div>
+          <div class="card-header-row">
+            <h2 class="card-title">
+              <span class="card-title-icon">📊</span>
+              Birthday Milestone Stats
+            </h2>
+          </div>
+          
+          <ul class="stats-list">
+            <li class="stats-item">
+              <span class="stat-bullet"></span>
+              <span class="stat-label">Age today:</span>
+              <span id="stat-age-today" class="stat-value accent-text">--</span>
+            </li>
+            
+            <li class="stats-item next-bday-row">
+              <span class="stat-bullet"></span>
+              <span class="stat-label">Next Birthday:</span>
+              <span id="stat-next-bday" class="stat-value accent-text">--</span>
+            </li>
+
+            <li class="stats-item">
+              <span class="stat-bullet"></span>
+              <span class="stat-label">Total Months Lived:</span>
+              <span id="stat-months-lived" class="stat-value accent-text">--</span>
+            </li>
+
+            <li class="stats-item">
+              <span class="stat-bullet"></span>
+              <span class="stat-label">Lifetime lived:</span>
+              <span id="stat-days-lived" class="stat-value accent-text">--</span>
+            </li>
+          </ul>
+
+          <div class="card-footer-banner">
+            <span class="banner-pill">🌟 An Extraordinary Milestone Unlocked</span>
+          </div>
+        </article>
+
+        <!-- CARD 3 (Bottom Left): Words of Inspiration Card (Moved Quote and Author here!) -->
+        <article class="glass-card quote-card">
+          <div class="card-glow-indicator"></div>
+          <div class="card-header-row">
+            <h2 class="card-title">
+              <span class="card-title-icon">✨</span>
+              Words of Inspiration
+            </h2>
+            <button id="btn-refresh-quote" class="card-refresh-btn" aria-label="Next quote" title="Show another quote">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div id="quote-content" class="quote-content-body">
+            <!-- Quote and author (e.g. 'Count your age by friends, not years...' - John Lennon) -->
+          </div>
+
+          <div class="card-footer-banner">
+            <span class="banner-pill">🎁 Cherish every smile, memory, and friendship</span>
+          </div>
+        </article>
+
+        <!-- CARD 4 (Bottom Right): On This Day in History (Displays 2–3 Popular Historical Milestones) -->
+        <article class="glass-card history-card">
+          <div class="card-glow-indicator"></div>
+          <div class="card-header-row">
+            <h2 class="card-title">
+              <span class="card-title-icon">📜</span>
+              On This Day in History
+            </h2>
+          </div>
+          
+          <div class="history-content-body">
+            <ul id="history-events-list" class="history-events-list">
+              <!-- 2 to 3 major historical milestones rendered dynamically -->
+            </ul>
+          </div>
+
+          <div class="card-footer-banner">
+            <span class="banner-pill">🏛️ Sharing History With Monumental Events</span>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- Action Grid: Flex-wrap layout of outline interactive buttons -->
+      <section class="action-grid-section" aria-label="Wish Actions">
+        <div class="action-grid">
+          
+          <!-- Save Wish Card -->
+          <button id="btn-save-card" class="action-btn" title="Download high-resolution greeting card">
+            <span class="action-btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </span>
+            <span class="action-btn-text">Save Wish Card</span>
+          </button>
+
+          <!-- WhatsApp Share -->
+          <button id="btn-whatsapp" class="action-btn" title="Share wish on WhatsApp">
+            <span class="action-btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+              </svg>
+            </span>
+            <span class="action-btn-text">WhatsApp</span>
+          </button>
+
+          <!-- Add Reminder (Google Calendar Integration) -->
+          <button id="btn-add-reminder" class="action-btn" title="Add birthday reminder to Google Calendar">
+            <span class="action-btn-icon calendar-icon">📅</span>
+            <span class="action-btn-text">Add Reminder</span>
+          </button>
+
+          <!-- Copy Wish -->
+          <button id="btn-copy-wish" class="action-btn" title="Copy wish to clipboard">
+            <span class="action-btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </span>
+            <span class="action-btn-text">Copy Wish</span>
+          </button>
+
+          <!-- Get QR -->
+          <button id="btn-get-qr" class="action-btn" title="Show scannable QR code">
+            <span class="action-btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </span>
+            <span class="action-btn-text">Get QR</span>
+          </button>
+
+          <!-- Sign Out -->
+          <button id="btn-sign-out" class="action-btn sign-out-btn" title="Return to setup and start new wish">
+            <span class="action-btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 14 4 9 9 4"></polyline>
+                <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
+              </svg>
+            </span>
+            <span class="action-btn-text">Sign out</span>
+          </button>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Modern Scrollable Drum/Wheel Date Picker Modal -->
+  <div id="drum-picker-modal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="drum-picker-title">
+    <div class="modal-dialog drum-picker-dialog glass-card">
+      <button id="btn-close-drum-picker" class="modal-close-btn" aria-label="Close date picker">&times;</button>
+      
+      <div class="drum-picker-header">
+        <h3 id="drum-picker-title" class="drum-picker-title">🗓️ Select Date of Birth</h3>
+        <p class="drum-picker-subtitle">Scroll or click the wheels to choose your birth date</p>
+        <div class="drum-picker-preview-box">
+          <span class="preview-label">Selected Date:</span>
+          <span id="drum-picker-preview" class="drum-picker-preview accent-text">05 September 2000</span>
+        </div>
+      </div>
+
+      <!-- 3-Column Column Headers Row -->
+      <div class="drum-headers-row">
+        <span class="drum-col-header">DAY</span>
+        <span class="drum-col-header">MONTH</span>
+        <span class="drum-col-header">YEAR</span>
+      </div>
+
+      <!-- 3-Column Drum Wheels -->
+      <div class="drum-wheels-container">
+        <!-- Center Focus Lens / Highlight Bar -->
+        <div class="drum-lens-bar" aria-hidden="true"></div>
+        <!-- 3D Cylindrical Shadows/Gradient Overlays -->
+        <div class="drum-fade-overlay top" aria-hidden="true"></div>
+        <div class="drum-fade-overlay bottom" aria-hidden="true"></div>
+
+        <!-- Column 1: DAY -->
+        <div class="drum-wheel" id="drum-wheel-day" data-unit="day" tabindex="0" aria-label="Day picker wheel">
+          <div class="drum-wheel-track" id="drum-track-day"></div>
+        </div>
+
+        <!-- Column 2: MONTH -->
+        <div class="drum-wheel" id="drum-wheel-month" data-unit="month" tabindex="0" aria-label="Month picker wheel">
+          <div class="drum-wheel-track" id="drum-track-month"></div>
+        </div>
+
+        <!-- Column 3: YEAR -->
+        <div class="drum-wheel" id="drum-wheel-year" data-unit="year" tabindex="0" aria-label="Year picker wheel">
+          <div class="drum-wheel-track" id="drum-track-year"></div>
+        </div>
+      </div>
+
+      <!-- Modal Actions -->
+      <div class="drum-picker-actions">
+        <button type="button" id="btn-cancel-drum" class="drum-action-btn secondary-btn">Cancel</button>
+        <button type="button" id="btn-confirm-drum" class="drum-action-btn primary-btn">Confirm Date</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Code Modal -->
+  <div id="qr-modal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="qr-modal-title">
+    <div class="modal-dialog glass-card">
+      <button id="btn-close-qr" class="modal-close-btn" aria-label="Close modal">&times;</button>
+      <div class="modal-header">
+        <h3 id="qr-modal-title" class="modal-title">✨ Birthday Wish QR Code</h3>
+        <p class="modal-subtitle">Scan with any phone camera to view this birthday wish</p>
+      </div>
+      <div class="qr-preview-box">
+        <img id="qr-code-img" src="" alt="Birthday Wish QR Code">
+      </div>
+      <div class="modal-actions">
+        <button id="btn-download-qr" class="modal-btn primary-modal-btn">Download QR Image</button>
+        <button id="btn-copy-qr-link" class="modal-btn secondary-modal-btn">Copy Wish Link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Animated Toast Notification Container -->
+  <aside id="app-toast" class="app-toast" role="status" aria-live="polite"></aside>
+
+</body>
+</html>
